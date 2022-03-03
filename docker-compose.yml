@@ -1,0 +1,39 @@
+version: "3"
+services:
+  navidrome:
+    image: deluan/navidrome:latest
+#    user: 1001:1001 # should be owner of volumes
+#    ports:
+#      - "4533:4533"
+
+    domainname: ${DOMAIN_NAME}
+    restart: unless-stopped
+
+    networks:
+      - proxy
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: ""
+    volumes:
+      - ./data:/data
+      - /media/Music:/music:ro
+
+
+    labels:
+      - "traefik.enable=true"
+#      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.navidrome.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.navidrome.entrypoints=websecure"
+      - "traefik.http.routers.navidrome.tls.certResolver=acme"
+
+
+#      - "traefik.frontend.headers.customResponseHeaders: Feature-Policy:camera 'none'; fullscreen 'none'; geolocation 'none'; microphone 'none'; payment 'none'; speaker 'none'; usb 'none'; vibrate 'none'; vr 'none';"
+
+networks:
+  proxy:
+    external:
+      name: proxy
+
